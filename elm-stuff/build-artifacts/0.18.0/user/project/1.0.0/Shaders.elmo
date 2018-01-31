@@ -1,0 +1,2 @@
+var _user$project$Shaders$fragmentShader = {'src': '\n  precision mediump float;\n  varying vec3 vColor;\n  void main () {\n    gl_FragColor = vec4(vColor, 1.0);\n  }\n'};
+var _user$project$Shaders$vertexShader = {'src': '\n  attribute vec3 position;\n  attribute vec3 color;\n  varying vec3 vColor;\n  uniform mat4 rotation;\n  void main () {\n    gl_Position = rotation * vec4(position, 1.0);\n    vColor = color;\n  }\n'};

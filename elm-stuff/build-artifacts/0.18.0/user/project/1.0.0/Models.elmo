@@ -1,0 +1,10 @@
+var _user$project$Models$Attribute = F2(
+	function (a, b) {
+		return {position: a, color: b};
+	});
+var _user$project$Models$Uniform = function (a) {
+	return {rotation: a};
+};
+var _user$project$Models$Varying = function (a) {
+	return {vColor: a};
+};

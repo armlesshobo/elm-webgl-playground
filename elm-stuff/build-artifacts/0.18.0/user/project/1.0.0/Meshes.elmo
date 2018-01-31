@@ -1,0 +1,20 @@
+var _user$project$Meshes$simpleTriangle = _elm_community$webgl$WebGL$triangles(
+	{
+		ctor: '::',
+		_0: {
+			ctor: '_Tuple3',
+			_0: A2(
+				_user$project$Models$Attribute,
+				A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 1, 0),
+				A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, 0, 0)),
+			_1: A2(
+				_user$project$Models$Attribute,
+				A3(_elm_community$linear_algebra$Math_Vector3$vec3, -1, -1, 0),
+				A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 1, 0)),
+			_2: A2(
+				_user$project$Models$Attribute,
+				A3(_elm_community$linear_algebra$Math_Vector3$vec3, 1, -1, 0),
+				A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 0, 1))
+		},
+		_1: {ctor: '[]'}
+	});
