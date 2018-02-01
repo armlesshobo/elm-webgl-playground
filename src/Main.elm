@@ -7,6 +7,11 @@ import Meshes exposing (simpleTriangle)
 import Math.Vector3 exposing (vec3, Vec3)
 import Math.Matrix4 exposing (makeRotate)
 
+import Msgs exposing (Msg)
+
+import Keyboard
+import Mouse
+
 main : Program Never Model Msg
 main =
     Html.program
@@ -22,12 +27,12 @@ main =
 
 
 type alias Model =
-    {}
+    { rotation : Float }
 
 
 initialModel : Model
 initialModel =
-    {}
+    { rotation = 0 }
 
 
 init : ( Model, Cmd Msg )
@@ -38,17 +43,36 @@ init =
 
 -- UPDATE
 
-
-type Msg
-    = NoOp
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        NoOp ->
+        Msgs.OnKeyDown keycode ->
+          let
+              updatedModel = processKeyCode keycode model
+          in
+            ( updatedModel, Cmd.none )
+
+        Msgs.OnMouseClick position ->
             ( model, Cmd.none )
 
+processKeyCode : Keyboard.KeyCode -> Model -> Model
+processKeyCode keycode model =
+  let
+      code = Debug.log "Key pressed: " keycode
+
+      newRotation =
+        case keycode of
+          37 ->
+            -0.1 + model.rotation
+
+          39 ->
+            0.1 + model.rotation
+
+          _ ->
+            model.rotation
+
+  in
+    {model | rotation = newRotation}
 
 
 -- SUBSCRIPTIONS
@@ -56,21 +80,23 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.none
+    Sub.batch [ Keyboard.downs Msgs.OnKeyDown
+              , Mouse.clicks Msgs.OnMouseClick
+              ]
 
 
 -- VIEW
 
 view : Model -> Html a
-view angle =
+view model =
   WebGL.toHtml
-    [ width 300
-    , height 300
+    [ width 1000
+    , height 800
     , style [("display", "block")]
     ]
     [ WebGL.entity
         vertexShader
         fragmentShader
         simpleTriangle
-        { rotation = makeRotate 0 (vec3 0 1 0) }
+        { rotation = makeRotate model.rotation (vec3 0 1 0) }
     ]

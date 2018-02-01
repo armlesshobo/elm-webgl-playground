@@ -15,3 +15,7 @@ type alias Uniform = {
 type alias Varying = {
   vColor : Vec3
 }
+
+type alias Camera = {
+  position : Vec3
+}
