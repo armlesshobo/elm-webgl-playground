@@ -12145,17 +12145,64 @@ var _user$project$Models$Attribute = F2(
 	function (a, b) {
 		return {position: a, color: b};
 	});
-var _user$project$Models$Uniform = function (a) {
-	return {rotation: a};
-};
+var _user$project$Models$Uniform = F2(
+	function (a, b) {
+		return {rotation: a, camera: b};
+	});
 var _user$project$Models$Varying = function (a) {
 	return {vColor: a};
 };
 var _user$project$Models$Camera = function (a) {
 	return {position: a};
 };
+var _user$project$Colors$makeColor = F3(
+	function (r, g, b) {
+		return A3(_elm_community$linear_algebra$Math_Vector3$vec3, r, g, b);
+	});
+var _user$project$Colors$darkBlue = A3(_user$project$Colors$makeColor, 0.0, 0.3, 0.5);
+var _user$project$Colors$blue = A3(_user$project$Colors$makeColor, 0.0, 0.0, 1);
 var _user$project$Shaders$fragmentShader = {'src': '\n  precision mediump float;\n  varying vec3 vColor;\n  void main () {\n    gl_FragColor = vec4(vColor, 1.0);\n  }\n'};
-var _user$project$Shaders$vertexShader = {'src': '\n  attribute vec3 position;\n  attribute vec3 color;\n  varying vec3 vColor;\n  uniform mat4 rotation;\n  void main () {\n    gl_Position = rotation * vec4(position, 1.0);\n    vColor = color;\n  }\n'};
+var _user$project$Shaders$vertexShader = {'src': '\n  attribute vec3 position;\n  attribute vec3 color;\n  varying vec3 vColor;\n  uniform mat4 rotation;\n  uniform mat4 camera;\n\n  void main () {\n    gl_Position = camera * rotation * vec4(position, 1.0);\n    vColor = color;\n  }\n'};
+var _user$project$Meshes$surface = function (color) {
+	return _elm_community$webgl$WebGL$triangles(
+		{
+			ctor: '::',
+			_0: {
+				ctor: '_Tuple3',
+				_0: A2(
+					_user$project$Models$Attribute,
+					A3(_elm_community$linear_algebra$Math_Vector3$vec3, -10.0, -1.0, 10.0),
+					color),
+				_1: A2(
+					_user$project$Models$Attribute,
+					A3(_elm_community$linear_algebra$Math_Vector3$vec3, 10.0, -1.0, 10.0),
+					color),
+				_2: A2(
+					_user$project$Models$Attribute,
+					A3(_elm_community$linear_algebra$Math_Vector3$vec3, -10.0, -1.0, -10.0),
+					color)
+			},
+			_1: {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple3',
+					_0: A2(
+						_user$project$Models$Attribute,
+						A3(_elm_community$linear_algebra$Math_Vector3$vec3, 10.0, -1.0, 10.0),
+						color),
+					_1: A2(
+						_user$project$Models$Attribute,
+						A3(_elm_community$linear_algebra$Math_Vector3$vec3, 10.0, -1.0, -10.0),
+						color),
+					_2: A2(
+						_user$project$Models$Attribute,
+						A3(_elm_community$linear_algebra$Math_Vector3$vec3, -10.0, -1.0, -10.0),
+						color)
+				},
+				_1: {ctor: '[]'}
+			}
+		});
+};
 var _user$project$Meshes$simpleTriangle = _elm_community$webgl$WebGL$triangles(
 	{
 		ctor: '::',
@@ -12176,12 +12223,22 @@ var _user$project$Meshes$simpleTriangle = _elm_community$webgl$WebGL$triangles(
 		},
 		_1: {ctor: '[]'}
 	});
+var _user$project$Msgs$OnMilliTick = function (a) {
+	return {ctor: 'OnMilliTick', _0: a};
+};
 var _user$project$Msgs$OnMouseClick = function (a) {
 	return {ctor: 'OnMouseClick', _0: a};
 };
 var _user$project$Msgs$OnKeyDown = function (a) {
 	return {ctor: 'OnKeyDown', _0: a};
 };
+var _user$project$Main$cameraLookAt = A3(
+	_elm_community$linear_algebra$Math_Matrix4$makeLookAt,
+	A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0.0, 1.0, 1.0),
+	A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0.0, 0.0, 0.0),
+	A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0.0, 1.0, 0.0));
+var _user$project$Main$persProj = A4(_elm_community$linear_algebra$Math_Matrix4$makePerspective, 90, 4 / 3, 0.1, 100);
+var _user$project$Main$camera = A2(_elm_community$linear_algebra$Math_Matrix4$mul, _user$project$Main$persProj, _user$project$Main$cameraLookAt);
 var _user$project$Main$view = function (model) {
 	return A2(
 		_elm_community$webgl$WebGL$toHtml,
@@ -12214,9 +12271,19 @@ var _user$project$Main$view = function (model) {
 					rotation: A2(
 						_elm_community$linear_algebra$Math_Matrix4$makeRotate,
 						model.rotation,
-						A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 1, 0))
+						A3(_elm_community$linear_algebra$Math_Vector3$vec3, 0, 1, 0)),
+					camera: _user$project$Main$camera
 				}),
-			_1: {ctor: '[]'}
+			_1: {
+				ctor: '::',
+				_0: A4(
+					_elm_community$webgl$WebGL$entity,
+					_user$project$Shaders$vertexShader,
+					_user$project$Shaders$fragmentShader,
+					_user$project$Meshes$surface(_user$project$Colors$darkBlue),
+					{rotation: _elm_community$linear_algebra$Math_Matrix4$identity, camera: _user$project$Main$camera}),
+				_1: {ctor: '[]'}
+			}
 		});
 };
 var _user$project$Main$subscriptions = function (model) {
@@ -12227,7 +12294,11 @@ var _user$project$Main$subscriptions = function (model) {
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$mouse$Mouse$clicks(_user$project$Msgs$OnMouseClick),
-				_1: {ctor: '[]'}
+				_1: {
+					ctor: '::',
+					_0: A2(_elm_lang$core$Time$every, 10, _user$project$Msgs$OnMilliTick),
+					_1: {ctor: '[]'}
+				}
 			}
 		});
 };
@@ -12252,11 +12323,20 @@ var _user$project$Main$processKeyCode = F2(
 var _user$project$Main$update = F2(
 	function (msg, model) {
 		var _p1 = msg;
-		if (_p1.ctor === 'OnKeyDown') {
-			var updatedModel = A2(_user$project$Main$processKeyCode, _p1._0, model);
-			return {ctor: '_Tuple2', _0: updatedModel, _1: _elm_lang$core$Platform_Cmd$none};
-		} else {
-			return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+		switch (_p1.ctor) {
+			case 'OnKeyDown':
+				var updatedModel = A2(_user$project$Main$processKeyCode, _p1._0, model);
+				return {ctor: '_Tuple2', _0: updatedModel, _1: _elm_lang$core$Platform_Cmd$none};
+			case 'OnMouseClick':
+				return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+			default:
+				return {
+					ctor: '_Tuple2',
+					_0: _elm_lang$core$Native_Utils.update(
+						model,
+						{rotation: model.rotation + 0.1}),
+					_1: _elm_lang$core$Platform_Cmd$none
+				};
 		}
 	});
 var _user$project$Main$initialModel = {rotation: 0};

@@ -1,4 +1,4 @@
-module Models exposing (Attribute, Uniform, Varying)
+module Models exposing (..)
 
 import Math.Vector3 exposing (Vec3)
 import Math.Matrix4 exposing (Mat4)
@@ -9,7 +9,8 @@ type alias Attribute = {
 }
 
 type alias Uniform = {
-  rotation : Mat4
+  rotation : Mat4,
+  camera : Mat4
 }
 
 type alias Varying = {
@@ -17,5 +18,11 @@ type alias Varying = {
 }
 
 type alias Camera = {
-  position : Vec3
+  position : Position
 }
+
+type alias Color = Vec3
+
+type alias Position = Vec3
+
+type alias Direction = Vec3

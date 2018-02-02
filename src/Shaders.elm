@@ -12,8 +12,10 @@ vertexShader = [glsl|
   attribute vec3 color;
   varying vec3 vColor;
   uniform mat4 rotation;
+  uniform mat4 camera;
+
   void main () {
-    gl_Position = rotation * vec4(position, 1.0);
+    gl_Position = camera * rotation * vec4(position, 1.0);
     vColor = color;
   }
 |]
