@@ -3,9 +3,10 @@ import Html.Attributes exposing (style, height, width)
 
 import WebGL
 import Shaders exposing (vertexShader, fragmentShader)
-import Meshes exposing (simpleTriangle, surface)
+import Meshes exposing (simpleTestTriangle, surface)
 import Math.Vector3 exposing (vec3, Vec3)
 import Math.Matrix4 as Mat4 exposing (Mat4, makeRotate, makePerspective)
+import Models exposing (Camera)
 
 import Colors
 
@@ -30,12 +31,18 @@ main =
 
 
 type alias Model =
-    { rotation : Float }
+    { rotation : Float
+    , cameraRotation : Float
+    , camera : Camera
+    }
 
 
 initialModel : Model
 initialModel =
-    { rotation = 0 }
+    { rotation = 0
+    , cameraRotation = 0
+    , camera = camera
+    }
 
 
 init : ( Model, Cmd Msg )
@@ -60,6 +67,13 @@ update msg model =
         Msgs.OnMilliTick time ->
             ( {model | rotation = model.rotation + 0.1}, Cmd.none )
 
+        Msgs.TurnCamera time ->
+            let
+                newRotation = model.cameraRotation + 0.01
+                newCamera = Mat4.mul (cameraRotate newRotation) model.camera
+            in
+                ( {model | camera = newCamera, cameraRotation = newRotation}, Cmd.none )
+
 
 processKeyCode : Keyboard.KeyCode -> Model -> Model
 processKeyCode keycode model =
@@ -69,16 +83,16 @@ processKeyCode keycode model =
       newRotation =
         case keycode of
           37 ->
-            -0.1 + model.rotation
+            -0.01 + model.cameraRotation
 
           39 ->
-            0.1 + model.rotation
+            0.01 + model.cameraRotation
 
           _ ->
             model.rotation
 
   in
-    {model | rotation = newRotation}
+    {model | cameraRotation = newRotation}
 
 
 -- SUBSCRIPTIONS
@@ -89,8 +103,8 @@ subscriptions model =
     Sub.batch [ Keyboard.downs Msgs.OnKeyDown
               , Mouse.clicks Msgs.OnMouseClick
               , Time.every 10 Msgs.OnMilliTick
+              , Time.every 100 Msgs.TurnCamera
               ]
-
 
 -- VIEW
 
@@ -105,30 +119,35 @@ cameraLookAt =
       (vec3 0.0 0.0 0.0)
       (vec3 0.0 1.0 0.0)
 
-camera : Mat4
+camera : Camera
 camera =
     Mat4.mul persProj cameraLookAt
 
+cameraRotate : Float -> Mat4
+cameraRotate rotation =
+    makeRotate rotation (vec3 0 1 0)
+
+
 view : Model -> Html a
 view model =
-  WebGL.toHtml
-    [ width 1000
-    , height 800
-    , style [("display", "block")]
-    ]
-    [ WebGL.entity
-        vertexShader
-        fragmentShader
-        simpleTriangle
-        { rotation = makeRotate model.rotation (vec3 0 1 0)
-        , camera = camera
-        }
+      WebGL.toHtml
+        [ width 1000
+        , height 800
+        , style [("display", "block")]
+        ]
+        [ WebGL.entity
+            vertexShader
+            fragmentShader
+            simpleTestTriangle
+            { rotation = makeRotate model.rotation (vec3 0 1 0)
+            , camera = model.camera
+            }
 
-    , WebGL.entity
-          vertexShader
-          fragmentShader
-          (surface Colors.darkBlue)
-          { rotation = Mat4.identity
-          , camera = camera
-          }
-    ]
+        , WebGL.entity
+              vertexShader
+              fragmentShader
+              (surface Colors.darkBlue)
+              { rotation = Mat4.identity
+              , camera = model.camera
+              }
+        ]

@@ -8,3 +8,4 @@ import Time exposing (Time)
 type Msg = OnKeyDown Keyboard.KeyCode
          | OnMouseClick Mouse.Position
          | OnMilliTick Time
+         | TurnCamera Time

@@ -10,16 +10,14 @@ type alias Attribute = {
 
 type alias Uniform = {
   rotation : Mat4,
-  camera : Mat4
+  camera : Camera
 }
 
 type alias Varying = {
   vColor : Vec3
 }
 
-type alias Camera = {
-  position : Position
-}
+type alias Camera = Mat4
 
 type alias Color = Vec3
 
